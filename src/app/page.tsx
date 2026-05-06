@@ -10,7 +10,8 @@ import { Header, type SaveStatus, type ViewMode } from "@/components/Header";
 import { InventoryView } from "@/components/InventoryView";
 import { NewProjectModal } from "@/components/NewProjectModal";
 import { ProjectDetail } from "@/components/ProjectDetail";
-import { DEFAULT_BUDGETS, SEED_PROJECTS } from "@/data/seed";
+import { ZoneManagerPanel } from "@/components/ZoneManagerPanel";
+import { DEFAULT_BUDGETS, DEFAULT_ZONES, SEED_PROJECTS } from "@/data/seed";
 import { STORAGE_KEYS } from "@/data/constants";
 import {
   computeCompletionPrompts,
@@ -24,6 +25,7 @@ import type {
   Meta,
   Project,
   StatusId,
+  Zone,
   ZoneId,
 } from "@/types/project";
 
@@ -35,6 +37,7 @@ const DEFAULT_META: Meta = {
 
 export default function HomePage() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [zones, setZones] = useState<Zone[]>(DEFAULT_ZONES);
   const [meta, setMeta] = useState<Meta>(DEFAULT_META);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,11 +50,13 @@ export default function HomePage() {
   const [showNewProject, setShowNewProject] = useState(false);
   const [view, setView] = useState<ViewMode>("board");
   const [showAgenticPanel, setShowAgenticPanel] = useState(false);
+  const [showZoneManager, setShowZoneManager] = useState(false);
 
   // Load from localStorage on mount
   useEffect(() => {
     try {
       const storedProjects = readStorage<Project[]>(STORAGE_KEYS.projects);
+      const storedZones = readStorage<Zone[]>(STORAGE_KEYS.zones);
       const storedMeta = readStorage<Meta>(STORAGE_KEYS.meta);
       const storedInventory = readStorage<InventoryItem[]>(
         STORAGE_KEYS.inventory
@@ -62,11 +67,17 @@ export default function HomePage() {
           ? storedProjects
           : SEED_PROJECTS
       );
+      setZones(
+        Array.isArray(storedZones) && storedZones.length > 0
+          ? storedZones
+          : DEFAULT_ZONES
+      );
       setMeta(storedMeta ?? DEFAULT_META);
       setInventory(Array.isArray(storedInventory) ? storedInventory : []);
     } catch (err) {
       console.error("Load failed:", err);
       setProjects(SEED_PROJECTS);
+      setZones(DEFAULT_ZONES);
     } finally {
       setLoading(false);
     }
@@ -83,6 +94,15 @@ export default function HomePage() {
     }, 600);
     return () => clearTimeout(t);
   }, [projects, loading]);
+
+  // Persist zones
+  useEffect(() => {
+    if (loading) return;
+    const t = setTimeout(() => {
+      writeStorage(STORAGE_KEYS.zones, zones);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [zones, loading]);
 
   // Persist meta
   useEffect(() => {
@@ -158,7 +178,7 @@ export default function HomePage() {
 
   const exportData = () => {
     const blob = new Blob(
-      [JSON.stringify({ projects, meta, inventory }, null, 2)],
+      [JSON.stringify({ projects, zones, meta, inventory }, null, 2)],
       { type: "application/json" }
     );
     const url = URL.createObjectURL(blob);
@@ -167,6 +187,37 @@ export default function HomePage() {
     a.download = `emily_faye_${new Date().toISOString().split("T")[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  // Zone manager handlers
+  const handleSaveZones = (next: Zone[]) => {
+    setZones(next);
+    // Sync the meta budgetByZone: keep entries for zones that still exist,
+    // ensure new zones have a default of 0.
+    setMeta((prev) => {
+      const newBudgets: Record<string, number> = {};
+      next.forEach((z) => {
+        newBudgets[z.id] = prev.budgetByZone[z.id] ?? 0;
+      });
+      return { ...prev, budgetByZone: newBudgets };
+    });
+    // If the active filter zone no longer exists, reset it
+    if (activeZone !== "all" && !next.find((z) => z.id === activeZone)) {
+      setActiveZone("all");
+    }
+  };
+
+  const handleReassignProjects = (fromZone: ZoneId, toZone: ZoneId) => {
+    const now = new Date().toISOString();
+    setProjects((prev) =>
+      prev.map((p) =>
+        p.zone === fromZone ? { ...p, zone: toZone, updatedAt: now } : p
+      )
+    );
+  };
+
+  const handleDeleteProjectsInZone = (zoneId: ZoneId) => {
+    setProjects((prev) => prev.filter((p) => p.zone !== zoneId));
   };
 
   // Computed values
@@ -191,7 +242,10 @@ export default function HomePage() {
     [projects, activeZone, activeStatus, searchQuery]
   );
 
-  const stats = useMemo(() => computeStats(projects, meta), [projects, meta]);
+  const stats = useMemo(
+    () => computeStats(projects, meta, zones),
+    [projects, meta, zones]
+  );
   const deadline = useMemo(() => computeDeadline(projects), [projects]);
   const staleProjects = useMemo(() => computeStale(projects), [projects]);
   const completionPrompts = useMemo(
@@ -234,6 +288,7 @@ export default function HomePage() {
         <BoardView
           projects={filteredProjects}
           allProjects={projects}
+          zones={zones}
           activeZone={activeZone}
           setActiveZone={setActiveZone}
           activeStatus={activeStatus}
@@ -252,6 +307,7 @@ export default function HomePage() {
           deadline={deadline}
           meta={meta}
           setMeta={setMeta}
+          onManageZones={() => setShowZoneManager(true)}
         />
       )}
 
@@ -267,6 +323,7 @@ export default function HomePage() {
         <ProjectDetail
           project={selectedProject}
           allProjects={projects}
+          zones={zones}
           onClose={() => setSelectedProject(null)}
           onUpdate={(updates) => updateProject(selectedProject.id, updates)}
           onDelete={() => deleteProject(selectedProject.id)}
@@ -276,6 +333,7 @@ export default function HomePage() {
 
       {showNewProject && (
         <NewProjectModal
+          zones={zones}
           onClose={() => setShowNewProject(false)}
           onSelect={(zone) => {
             const np = addProject(zone);
@@ -289,12 +347,24 @@ export default function HomePage() {
         <AgenticPanel
           onClose={() => setShowAgenticPanel(false)}
           projects={projects}
+          zones={zones}
           stats={stats}
           deadline={deadline}
           meta={meta}
           setMeta={setMeta}
           updateProject={updateProject}
           setInventory={setInventory}
+        />
+      )}
+
+      {showZoneManager && (
+        <ZoneManagerPanel
+          zones={zones}
+          projects={projects}
+          onClose={() => setShowZoneManager(false)}
+          onSave={handleSaveZones}
+          onReassignProjects={handleReassignProjects}
+          onDeleteProjectsInZone={handleDeleteProjectsInZone}
         />
       )}
 

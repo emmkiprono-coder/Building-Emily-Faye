@@ -3,8 +3,7 @@
 import { Loader2, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { callClaudeJson } from "@/lib/claude";
-import { ZONES } from "@/data/constants";
-import type { InventoryItem, Project } from "@/types/project";
+import type { InventoryItem, Project, Zone } from "@/types/project";
 
 interface ReceiptResult {
   vendor: string;
@@ -15,6 +14,7 @@ interface ReceiptResult {
 
 interface Props {
   projects: Project[];
+  zones: Zone[];
   updateProject: (id: string, updates: Partial<Project>) => void;
   setInventory: (
     updater: (prev: InventoryItem[]) => InventoryItem[]
@@ -27,7 +27,7 @@ function extractImagePayload(dataUrl: string): { mediaType: string; data: string
   return { mediaType: match[1], data: match[2] };
 }
 
-export function ReceiptTool({ projects, updateProject, setInventory }: Props) {
+export function ReceiptTool({ projects, zones, updateProject, setInventory }: Props) {
   const [analyzing, setAnalyzing] = useState(false);
   const [photo, setPhoto] = useState<string | null>(null);
   const [result, setResult] = useState<ReceiptResult | null>(null);
@@ -161,7 +161,7 @@ export function ReceiptTool({ projects, updateProject, setInventory }: Props) {
               .filter((p) => p.status !== "complete")
               .map((p) => (
                 <option key={p.id} value={p.id}>
-                  {ZONES.find((z) => z.id === p.zone)?.short}: {p.title}
+                  {zones.find((z) => z.id === p.zone)?.short}: {p.title}
                 </option>
               ))}
           </select>

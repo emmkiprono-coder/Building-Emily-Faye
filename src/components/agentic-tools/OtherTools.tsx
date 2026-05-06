@@ -3,12 +3,17 @@
 import { Calendar, Cloud, Download, Link2, Loader2, Mail, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import { callClaude } from "@/lib/claude";
-import { ZONES } from "@/data/constants";
 import type { DeadlineInfo, OverallStats } from "@/lib/compute";
-import type { Project, ZoneId } from "@/types/project";
+import type { Project, Zone, ZoneId } from "@/types/project";
 
 // ============ Parts Order Email ============
-export function PartsEmailTool({ projects }: { projects: Project[] }) {
+export function PartsEmailTool({
+  projects,
+  zones,
+}: {
+  projects: Project[];
+  zones: Zone[];
+}) {
   const [selectedZone, setSelectedZone] = useState<ZoneId | "all">("all");
   const [vendor, setVendor] = useState("West Marine");
   const [loading, setLoading] = useState(false);
@@ -61,7 +66,7 @@ Subject + body. Professional but friendly. No em-dashes. Brief.`,
           className="px-3 py-2 rounded text-sm input-field"
         >
           <option value="all">All zones</option>
-          {ZONES.map((z) => (
+          {zones.map((z) => (
             <option key={z.id} value={z.id}>
               {z.short}
             </option>
@@ -195,9 +200,11 @@ Slack-ready (use *bold* and bullet points). Brief, no em-dashes.`,
 export function ReportTool({
   projects,
   stats,
+  zones,
 }: {
   projects: Project[];
   stats: OverallStats;
+  zones: Zone[];
 }) {
   const [loading, setLoading] = useState(false);
   const [output, setOutput] = useState<string | null>(null);
@@ -209,7 +216,7 @@ export function ReportTool({
     try {
       const completeProjects = projects.filter((p) => p.status === "complete");
       const summary = completeProjects.map((p) => ({
-        zone: ZONES.find((z) => z.id === p.zone)?.short,
+        zone: zones.find((z) => z.id === p.zone)?.short,
         title: p.title,
         workCompleted: p.workCompleted,
         cost: p.cost,
@@ -297,7 +304,13 @@ Sections: Executive Summary, Zone-by-zone work completed, Cost breakdown, Lesson
 }
 
 // ============ Calendar Export ============
-export function CalendarExportTool({ projects }: { projects: Project[] }) {
+export function CalendarExportTool({
+  projects,
+  zones,
+}: {
+  projects: Project[];
+  zones: Zone[];
+}) {
   const generate = () => {
     const events = projects.filter((p) => p.startDate && p.endDate);
     if (events.length === 0) {
@@ -309,7 +322,7 @@ export function CalendarExportTool({ projects }: { projects: Project[] }) {
       "VERSION:2.0",
       "PRODID:-//Emily Faye Restoration//EN",
       ...events.flatMap((p) => {
-        const zone = ZONES.find((z) => z.id === p.zone);
+        const zone = zones.find((z) => z.id === p.zone);
         return [
           "BEGIN:VEVENT",
           `UID:${p.id}@emilyfaye`,

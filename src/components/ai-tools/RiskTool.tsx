@@ -3,8 +3,7 @@
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { callClaudeJson } from "@/lib/claude";
-import { ZONES } from "@/data/constants";
-import type { Project } from "@/types/project";
+import type { Project, Zone } from "@/types/project";
 
 interface Risk {
   severity: "high" | "medium" | "low";
@@ -16,7 +15,7 @@ interface RisksResponse {
   risks: Risk[];
 }
 
-export function RiskTool({ project }: { project: Project }) {
+export function RiskTool({ project, zones }: { project: Project; zones: Zone[] }) {
   const [loading, setLoading] = useState(false);
   const [risks, setRisks] = useState<Risk[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +29,7 @@ export function RiskTool({ project }: { project: Project }) {
 
 Project: "${project.title}"
 Description: "${project.description}"
-Zone: ${ZONES.find((z) => z.id === project.zone)?.short}
+Zone: ${zones.find((z) => z.id === project.zone)?.short}
 Boat: 1979 C&C 29, fresh water (Lake Michigan), Montrose Harbor
 
 Focus on: structural integrity, marine plumbing/electrical codes (ABYC), through-hull and below-waterline concerns, fire safety, ventilation, sequencing issues that could cost rework.

@@ -4,7 +4,7 @@ Restoration project management system for **Emily Faye**, a 1979 C&C 29 sailboat
 
 ## What's inside
 
-- 52 pre-loaded restoration projects across 5 zones (Bedroom, Living Room, Kitchen, Bathroom, Cockpit)
+- 52 pre-loaded restoration projects across 5 zones (V-Berth, Salon, Galley, Head, Cockpit)
 - Per-project tracking: assignee, hours, cost, parts, before/after photos, videos, notes
 - Dependency graph (blocked by), priority levels, status workflow
 - Dashboard: deadline countdown, budget burn-down per zone, completion velocity

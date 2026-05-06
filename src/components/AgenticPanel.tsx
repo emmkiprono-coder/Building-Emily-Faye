@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import type { DeadlineInfo, OverallStats } from "@/lib/compute";
-import type { InventoryItem, Meta, Project } from "@/types/project";
+import type { InventoryItem, Meta, Project, Zone } from "@/types/project";
 import { ToolButton } from "./primitives";
 import { StandupTool } from "./agentic-tools/StandupTool";
 import { WeatherTool } from "./agentic-tools/WeatherTool";
@@ -43,6 +43,7 @@ type AgenticView =
 interface AgenticPanelProps {
   onClose: () => void;
   projects: Project[];
+  zones: Zone[];
   stats: OverallStats;
   deadline: DeadlineInfo;
   meta: Meta;
@@ -56,6 +57,7 @@ interface AgenticPanelProps {
 export function AgenticPanel({
   onClose,
   projects,
+  zones,
   stats,
   deadline,
   meta,
@@ -181,11 +183,12 @@ export function AgenticPanel({
           {view === "receipt" && (
             <ReceiptTool
               projects={projects}
+              zones={zones}
               updateProject={updateProject}
               setInventory={setInventory}
             />
           )}
-          {view === "email" && <PartsEmailTool projects={projects} />}
+          {view === "email" && <PartsEmailTool projects={projects} zones={zones} />}
           {view === "slack" && (
             <SlackTool
               projects={projects}
@@ -194,10 +197,10 @@ export function AgenticPanel({
             />
           )}
           {view === "report" && (
-            <ReportTool projects={projects} stats={stats} />
+            <ReportTool projects={projects} stats={stats} zones={zones} />
           )}
           {view === "calendar" && (
-            <CalendarExportTool projects={projects} />
+            <CalendarExportTool projects={projects} zones={zones} />
           )}
           {view === "drive" && <DriveSyncTool />}
           {view === "page" && (

@@ -3,8 +3,7 @@
 import { ListChecks, Loader2, Plus } from "lucide-react";
 import { useState } from "react";
 import { callClaudeJson } from "@/lib/claude";
-import { ZONES } from "@/data/constants";
-import type { Project, ZoneId, PriorityId } from "@/types/project";
+import type { Project, Zone, ZoneId, PriorityId } from "@/types/project";
 
 interface Subtask {
   title: string;
@@ -15,11 +14,12 @@ interface Subtask {
 
 interface Props {
   project: Project;
+  zones: Zone[];
   onAddProject: (zone: ZoneId, overrides?: Partial<Project>) => Project;
   onClose: () => void;
 }
 
-export function DecomposeTool({ project, onAddProject, onClose }: Props) {
+export function DecomposeTool({ project, zones, onAddProject, onClose }: Props) {
   const [loading, setLoading] = useState(false);
   const [tasks, setTasks] = useState<Subtask[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +33,7 @@ export function DecomposeTool({ project, onAddProject, onClose }: Props) {
 
 Project: "${project.title}"
 Description: "${project.description}"
-Zone: ${ZONES.find((z) => z.id === project.zone)?.short}
+Zone: ${zones.find((z) => z.id === project.zone)?.short}
 
 Return ONLY a JSON array, 5 to 10 subtasks, each:
 [

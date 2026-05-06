@@ -3,8 +3,7 @@
 import { DollarSign, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { callClaudeJson } from "@/lib/claude";
-import { ZONES } from "@/data/constants";
-import type { Project } from "@/types/project";
+import type { Project, Zone } from "@/types/project";
 
 interface Estimate {
   estimatedCostLow: number;
@@ -17,11 +16,12 @@ interface Estimate {
 
 interface Props {
   project: Project;
+  zones: Zone[];
   onUpdate: (updates: Partial<Project>) => void;
   onClose: () => void;
 }
 
-export function EstimateTool({ project, onUpdate, onClose }: Props) {
+export function EstimateTool({ project, zones, onUpdate, onClose }: Props) {
   const [loading, setLoading] = useState(false);
   const [estimate, setEstimate] = useState<Estimate | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +35,7 @@ export function EstimateTool({ project, onUpdate, onClose }: Props) {
 
 Project: "${project.title}"
 Description: "${project.description}"
-Zone: ${ZONES.find((z) => z.id === project.zone)?.short}
+Zone: ${zones.find((z) => z.id === project.zone)?.short}
 
 Realistic Chicago-area marine-grade materials and DIY labor. Return ONLY:
 {

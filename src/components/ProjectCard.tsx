@@ -11,12 +11,13 @@ import {
   Sun,
   User,
 } from "lucide-react";
-import type { Project, Weather } from "@/types/project";
-import { PRIORITIES, STATUSES, ZONES } from "@/data/constants";
+import type { Project, Weather, Zone } from "@/types/project";
+import { PRIORITIES, STATUSES } from "@/data/constants";
 
 interface ProjectCardProps {
   project: Project;
   allProjects: Project[];
+  zones: Zone[];
   onClick: () => void;
   weather?: Weather | null;
 }
@@ -24,10 +25,12 @@ interface ProjectCardProps {
 export function ProjectCard({
   project,
   allProjects,
+  zones,
   onClick,
   weather,
 }: ProjectCardProps) {
-  const zone = ZONES.find((z) => z.id === project.zone)!;
+  const zone = zones.find((z) => z.id === project.zone);
+  if (!zone) return null;
   const status = STATUSES.find((s) => s.id === project.status)!;
   const priority = PRIORITIES.find((p) => p.id === project.priority)!;
   const blockers = (project.blockedBy || [])

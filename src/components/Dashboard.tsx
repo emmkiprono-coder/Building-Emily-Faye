@@ -1,5 +1,6 @@
 "use client";
 
+import { Settings } from "lucide-react";
 import { useState } from "react";
 import type { DeadlineInfo, OverallStats, ZoneStats } from "@/lib/compute";
 import type { Meta, ZoneId } from "@/types/project";
@@ -10,6 +11,7 @@ interface DashboardProps {
   deadline: DeadlineInfo;
   meta: Meta;
   setMeta: (updater: (prev: Meta) => Meta) => void;
+  onManageZones: () => void;
 }
 
 function DeadlineCard({ deadline }: { deadline: DeadlineInfo }) {
@@ -149,7 +151,13 @@ function ZoneRow({
   );
 }
 
-export function Dashboard({ stats, deadline, meta, setMeta }: DashboardProps) {
+export function Dashboard({
+  stats,
+  deadline,
+  meta,
+  setMeta,
+  onManageZones,
+}: DashboardProps) {
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
       <DeadlineCard deadline={deadline} />
@@ -234,9 +242,21 @@ export function Dashboard({ stats, deadline, meta, setMeta }: DashboardProps) {
       </div>
 
       <div>
-        <h3 className="text-base font-semibold text-parchment mb-3">
-          By Zone — Budget Burn-down
-        </h3>
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <h3 className="text-base font-semibold text-parchment">
+            By Zone: Budget Burn-down
+          </h3>
+          <button
+            onClick={onManageZones}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-parchment"
+            style={{
+              background: "rgba(244, 236, 216, 0.06)",
+              border: "1px solid rgba(196, 154, 80, 0.2)",
+            }}
+          >
+            <Settings size={12} /> Manage Zones
+          </button>
+        </div>
         <div className="space-y-3">
           {stats.byZone.map((z) => (
             <ZoneRow

@@ -1,7 +1,7 @@
 "use client";
 
 import { Sparkles, X } from "lucide-react";
-import type { Project, ZoneId } from "@/types/project";
+import type { Project, Zone, ZoneId } from "@/types/project";
 import { VoiceLogTool } from "./ai-tools/VoiceLogTool";
 import { PhotoAnalyzeTool } from "./ai-tools/PhotoAnalyzeTool";
 import { DecomposeTool } from "./ai-tools/DecomposeTool";
@@ -26,6 +26,7 @@ const TITLES: Record<AIToolName, string> = {
 interface AIToolPanelProps {
   tool: AIToolName;
   project: Project;
+  zones: Zone[];
   onClose: () => void;
   onUpdate: (updates: Partial<Project>) => void;
   onAddProject: (zone: ZoneId, overrides?: Partial<Project>) => Project;
@@ -34,6 +35,7 @@ interface AIToolPanelProps {
 export function AIToolPanel({
   tool,
   project,
+  zones,
   onClose,
   onUpdate,
   onAddProject,
@@ -76,6 +78,7 @@ export function AIToolPanel({
       {tool === "decompose" && (
         <DecomposeTool
           project={project}
+          zones={zones}
           onAddProject={onAddProject}
           onClose={onClose}
         />
@@ -83,11 +86,12 @@ export function AIToolPanel({
       {tool === "estimate" && (
         <EstimateTool
           project={project}
+          zones={zones}
           onUpdate={onUpdate}
           onClose={onClose}
         />
       )}
-      {tool === "risk" && <RiskTool project={project} />}
+      {tool === "risk" && <RiskTool project={project} zones={zones} />}
     </div>
   );
 }

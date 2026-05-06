@@ -11,8 +11,8 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
-import type { Project, ZoneId } from "@/types/project";
-import { PRIORITIES, STATUSES, ZONES } from "@/data/constants";
+import type { Project, Zone, ZoneId } from "@/types/project";
+import { PRIORITIES, STATUSES } from "@/data/constants";
 import { AIButton, Label } from "./primitives";
 import { AIToolPanel, type AIToolName } from "./AIToolPanel";
 import { BlockerSelector } from "./BlockerSelector";
@@ -21,6 +21,7 @@ import { PhotoSection } from "./PhotoSection";
 interface ProjectDetailProps {
   project: Project;
   allProjects: Project[];
+  zones: Zone[];
   onClose: () => void;
   onUpdate: (updates: Partial<Project>) => void;
   onDelete: () => void;
@@ -30,6 +31,7 @@ interface ProjectDetailProps {
 export function ProjectDetail({
   project,
   allProjects,
+  zones,
   onClose,
   onUpdate,
   onDelete,
@@ -38,7 +40,8 @@ export function ProjectDetail({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [newPart, setNewPart] = useState("");
   const [aiPanel, setAiPanel] = useState<AIToolName | null>(null);
-  const zone = ZONES.find((z) => z.id === project.zone)!;
+  const zone = zones.find((z) => z.id === project.zone);
+  if (!zone) return null;
 
   const handleFileUpload = (
     field: "beforePhotos" | "afterPhotos" | "videos",
@@ -187,6 +190,7 @@ export function ProjectDetail({
             <AIToolPanel
               tool={aiPanel}
               project={project}
+              zones={zones}
               onClose={() => setAiPanel(null)}
               onUpdate={onUpdate}
               onAddProject={onAddProject}
@@ -250,7 +254,7 @@ export function ProjectDetail({
               htmlFor="exterior-toggle"
               className="text-sm text-parchment"
             >
-              Weather-dependent (exterior work)
+              Weather-dependent (topside / exterior work)
             </label>
           </div>
 

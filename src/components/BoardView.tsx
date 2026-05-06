@@ -1,14 +1,15 @@
 "use client";
 
 import { Anchor, CloudRain, Plus, Search, Sun } from "lucide-react";
-import type { Project, StatusId, Weather, ZoneId } from "@/types/project";
-import { STATUSES, ZONES } from "@/data/constants";
+import type { Project, StatusId, Weather, Zone, ZoneId } from "@/types/project";
+import { STATUSES } from "@/data/constants";
 import { FilterChip } from "./primitives";
 import { ProjectCard } from "./ProjectCard";
 
 interface BoardViewProps {
   projects: Project[];
   allProjects: Project[];
+  zones: Zone[];
   activeZone: ZoneId | "all";
   setActiveZone: (z: ZoneId | "all") => void;
   activeStatus: StatusId | "all";
@@ -59,7 +60,7 @@ function WeatherBanner({ weather }: { weather: Weather | null }) {
           color: isGood ? "#5DBB97" : "#5B7BA8",
         }}
       >
-        {isGood ? "GOOD FOR EXTERIOR WORK" : "INTERIOR WORK ADVISED"}
+        {isGood ? "GOOD FOR TOPSIDE WORK" : "BELOW-DECKS WORK ADVISED"}
       </span>
     </div>
   );
@@ -68,6 +69,7 @@ function WeatherBanner({ weather }: { weather: Weather | null }) {
 export function BoardView({
   projects,
   allProjects,
+  zones,
   activeZone,
   setActiveZone,
   activeStatus,
@@ -104,7 +106,7 @@ export function BoardView({
           >
             All Zones
           </FilterChip>
-          {ZONES.map((z) => (
+          {zones.map((z) => (
             <FilterChip
               key={z.id}
               active={activeZone === z.id}
@@ -147,6 +149,7 @@ export function BoardView({
             key={p.id}
             project={p}
             allProjects={allProjects}
+            zones={zones}
             onClick={() => onSelect(p)}
             weather={weather}
           />

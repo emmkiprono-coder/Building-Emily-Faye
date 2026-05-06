@@ -1,5 +1,5 @@
-import type { Meta, Project, ZoneId } from "@/types/project";
-import { LAUNCH_DATE, ZONES } from "@/data/constants";
+import type { Meta, Project, Zone, ZoneId } from "@/types/project";
+import { LAUNCH_DATE } from "@/data/constants";
 
 export interface ZoneStats {
   id: ZoneId;
@@ -37,7 +37,11 @@ export interface DeadlineInfo {
   isCritical: boolean;
 }
 
-export function computeStats(projects: Project[], meta: Meta): OverallStats {
+export function computeStats(
+  projects: Project[],
+  meta: Meta,
+  zones: Zone[]
+): OverallStats {
   const total = projects.length;
   const complete = projects.filter((p) => p.status === "complete").length;
   const inProgress = projects.filter((p) => p.status === "in_progress").length;
@@ -52,7 +56,7 @@ export function computeStats(projects: Project[], meta: Meta): OverallStats {
     0
   );
 
-  const byZone: ZoneStats[] = ZONES.map((z) => {
+  const byZone: ZoneStats[] = zones.map((z) => {
     const zp = projects.filter((p) => p.zone === z.id);
     const zc = zp.filter((p) => p.status === "complete").length;
     const zCost = zp.reduce((s, p) => s + (Number(p.cost) || 0), 0);

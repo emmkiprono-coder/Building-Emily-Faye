@@ -1,6 +1,6 @@
 export type StatusId = "planned" | "in_progress" | "blocked" | "complete";
 export type PriorityId = "low" | "medium" | "high";
-export type ZoneId = "zone1" | "zone2" | "zone3" | "zone4" | "zone5";
+export type ZoneId = string;
 
 export interface MediaFile {
   id: string;
@@ -80,7 +80,7 @@ export interface Weather {
 }
 
 export interface Meta {
-  budgetByZone: Record<ZoneId, number>;
+  budgetByZone: Record<string, number>;
   weather: Weather | null;
   weatherFetchedAt: string | null;
 }

@@ -1,15 +1,19 @@
 "use client";
 
 import { X } from "lucide-react";
-import type { ZoneId } from "@/types/project";
-import { ZONES } from "@/data/constants";
+import type { Zone, ZoneId } from "@/types/project";
 
 interface NewProjectModalProps {
+  zones: Zone[];
   onClose: () => void;
   onSelect: (zone: ZoneId) => void;
 }
 
-export function NewProjectModal({ onClose, onSelect }: NewProjectModalProps) {
+export function NewProjectModal({
+  zones,
+  onClose,
+  onSelect,
+}: NewProjectModalProps) {
   return (
     <div
       className="fixed inset-0 z-40 flex items-end sm:items-center justify-center p-0 sm:p-4 fade-in"
@@ -40,7 +44,7 @@ export function NewProjectModal({ onClose, onSelect }: NewProjectModalProps) {
         </div>
         <p className="text-sm mb-4 text-sand">Pick a zone:</p>
         <div className="space-y-2">
-          {ZONES.map((z) => (
+          {zones.map((z) => (
             <button
               key={z.id}
               onClick={() => onSelect(z.id)}

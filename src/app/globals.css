@@ -1,0 +1,143 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    margin: 0;
+    background: linear-gradient(
+      180deg,
+      #0f1b2c 0%,
+      #14253a 50%,
+      #0f1b2c 100%
+    );
+    min-height: 100vh;
+  }
+
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  button:focus-visible {
+    outline: 2px solid #c49a50;
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .compass-bg {
+    background-image: radial-gradient(
+        circle at 20% 20%,
+        rgba(196, 154, 80, 0.08) 0%,
+        transparent 40%
+      ),
+      radial-gradient(
+        circle at 80% 60%,
+        rgba(63, 107, 92, 0.1) 0%,
+        transparent 50%
+      );
+  }
+
+  .nautical-card {
+    background: linear-gradient(
+      135deg,
+      rgba(244, 236, 216, 0.04) 0%,
+      rgba(244, 236, 216, 0.02) 100%
+    );
+    border: 1px solid rgba(196, 154, 80, 0.2);
+    backdrop-filter: blur(8px);
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .nautical-card:hover {
+    border-color: rgba(196, 154, 80, 0.5);
+    background: linear-gradient(
+      135deg,
+      rgba(244, 236, 216, 0.06) 0%,
+      rgba(244, 236, 216, 0.03) 100%
+    );
+  }
+
+  .brass-button {
+    background: linear-gradient(135deg, #c49a50 0%, #8b6f3a 100%);
+    color: #0f1b2c;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: all 0.2s ease;
+  }
+  .brass-button:hover {
+    background: linear-gradient(135deg, #d4ab60 0%, #9b7f4a 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(196, 154, 80, 0.3);
+  }
+  .brass-button:active {
+    transform: translateY(0);
+  }
+  .brass-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .input-field {
+    background: rgba(244, 236, 216, 0.05);
+    border: 1px solid rgba(196, 154, 80, 0.2);
+    color: #f4ecd8;
+    font-family: inherit;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: rgba(244, 236, 216, 0.05);
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(196, 154, 80, 0.4);
+    border-radius: 3px;
+  }
+}
+
+@layer utilities {
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes pulseSoft {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+  .pulse-soft {
+    animation: pulseSoft 2s ease-in-out infinite;
+  }
+  .spin {
+    animation: spin 1s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fade-in,
+    .pulse-soft,
+    .spin,
+    .brass-button {
+      animation: none;
+      transition: none;
+    }
+  }
+}
